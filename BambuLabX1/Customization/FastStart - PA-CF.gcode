@@ -99,6 +99,11 @@ G1 Y264 F6000
 M109 S200 ;
 G1 X100 F18000 ; first wipe mouth
 
+G0 X135 Y253 F20000  ; move to exposed steel surface edge
+G28 Z P0 T300; home z with low precision,permit 300deg temperature
+G29.2 S0 ; turn off ABL
+G0 Z2 F20000
+
 M109 S180 
 G1 X60 Y265
 G92 E0
