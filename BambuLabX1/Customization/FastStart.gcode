@@ -128,11 +128,33 @@ G1 Z10
 G1 F30000
 G1 X230 Y15
 G29.2 S1 ; turn on ABL
-G28 ; home again after hard wipe mouth
+;G28 ; home again after hard wipe mouth
 M106 S0 ; turn off fan , too noisy
 ;===== wipe nozzle end ================================
 
+;===== bed leveling ==================================
+M1002 judge_flag g29_before_print_flag
+M622 J1
 
+    M1002 gcode_claim_action : 1
+    G29 A X{first_layer_print_min[0]} Y{first_layer_print_min[1]} I{first_layer_print_size[0]} J{first_layer_print_size[1]}
+    M400
+    M500 ; save cali data
+
+M623
+;===== bed leveling end ================================
+
+;===== home after wipe mouth============================
+M1002 judge_flag g29_before_print_flag
+M622 J0
+
+    M1002 gcode_claim_action : 13
+    G28
+
+M623
+;===== home after wipe mouth end =======================
+
+M975 S1 ; turn on vibration supression
 =============turn on fans to prevent PLA jamming=================
 {if filament_type[initial_tool]=="PLA"}
     {if (bed_temperature[current_extruder] >45)||(bed_temperature_initial_layer[current_extruder] >45)}
@@ -143,11 +165,8 @@ M106 S0 ; turn off fan , too noisy
 {endif}
 M106 P2 S100 ; turn on big fan ,to cool down toolhead
 
-{if scan_first_layer}
-;start heatbed  scan====================================
-M976 S2 P1 
-{endif}
 
+M104 S{nozzle_temperature_initial_layer[initial_extruder]} ; set extrude temp earlier, to reduce wait time
 
 ;===== noozle load line ===============================
 M975 S1
@@ -162,18 +181,10 @@ G0 Y5.5
 G0 X18 E15
 M400
 
-
 ;========turn off light and wait extrude temperature =============
 M1002 gcode_claim_action : 0
-M973 S4 ; turn off scanner
-M400 ; wait all motion done before implement the emprical L parameters
-;M900 L500.0 ; Empirical parameters
-M960 S1 P0 ; turn off laser
-M960 S2 P0 ; turn off laser
 M106 S0 ; turn off fan
 M106 P2 S0 ; turn off big fan 
 M106 P3 S0 ; turn off chamber fan
 
 M975 S1 ; turn on mech mode supression
-G90 
-M83
