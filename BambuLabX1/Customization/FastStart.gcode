@@ -1,4 +1,4 @@
-
+;===== machine: P1P ========================
 ;===== date: 202200815 =====================
 ;===== reset machine status =================
 G91
@@ -60,7 +60,7 @@ M621 S[initial_tool]A
 
 M412 S1 ; ===turn on filament runout detection===
 
-M109 S250 ;set nozzle to common flush temp
+M109 S240 ;set nozzle to common flush temp
 M106 P1 S0
 G92 E0
 G1 E50 F200
@@ -75,7 +75,6 @@ G1 E5 F300
 M109 S{nozzle_temperature_initial_layer[initial_extruder]-20} ; drop nozzle temp, make filament shink a bit
 G92 E0
 G1 E-0.5 F300
-
 G1 X70 F9000
 G1 X76 F15000
 G1 X65 F15000
@@ -84,20 +83,33 @@ G1 X65 F15000; shake to put down garbage
 G1 X80 F6000
 G1 X95 F15000
 G1 X80 F15000
-G1 X165 F15000; wipe and shake
+G1 X95 F15000
+G1 X76 F15000; wipe and shake
+
+
+;== Custom Shake for TPU 
+M109 S{nozzle_temperature_initial_layer[initial_extruder]-40} ; drop nozzle temp, make filament shink a bit
+G1 X80 F6000
+G1 X95 F15000
+G1 X80 F15000
+G1 X95 F15000
+G1 X76 F15000; wipe and shake
+M109 S{nozzle_temperature_initial_layer[initial_extruder]-60} ; drop nozzle temp, make filament shink a bit
+G1 X80 F6000
+G1 X95 F15000
+G1 X80 F15000
+G1 X95 F15000
+G1 X76 F15000; wipe and shake
+M109 S{nozzle_temperature_initial_layer[initial_extruder]-80} ; drop nozzle temp, make filament shink a bit
+G1 X80 F6000
+G1 X95 F15000
+G1 X80 F15000
+G1 X95 F15000
+G1 X76 F15000; wipe and shake
+
 M400
 M106 P1 S0
-;===== prepare print temperature and material end =====
 
-
-;===== wipe nozzle ===============================
-M1002 gcode_claim_action : 14
-M975 S1
-M106 S255
-G1 X65 Y230 F18000
-G1 Y264 F6000
-M109 S{nozzle_temperature_initial_layer[initial_extruder]-20}
-G1 X100 F18000 ; first wipe mouth
 
 G0 X135 Y253 F20000  ; move to exposed steel surface edge
 G28 Z P0 T300; home z with low precision,permit 300deg temperature
@@ -128,7 +140,7 @@ G1 Z10
 G1 F30000
 G1 X230 Y15
 G29.2 S1 ; turn on ABL
-;G28 ; home again after hard wipe mouth
+G28 ; home again after hard wipe mouth
 M106 S0 ; turn off fan , too noisy
 ;===== wipe nozzle end ================================
 
@@ -145,13 +157,13 @@ M623
 ;===== bed leveling end ================================
 
 ;===== home after wipe mouth============================
-M1002 judge_flag g29_before_print_flag
-M622 J0
-
-    M1002 gcode_claim_action : 13
-    G28
-
-M623
+#M1002 judge_flag g29_before_print_flag
+#M622 J0
+#
+#    M1002 gcode_claim_action : 13
+#    G28
+#
+#M623
 ;===== home after wipe mouth end =======================
 
 M975 S1 ; turn on vibration supression
@@ -173,7 +185,7 @@ M975 S1
 G90 
 M83
 T1000
-G1 X18.0 Y5.0 Z0.3 F18000;Move to start position
+G1 X18.0 Y5.0 Z0.2 F18000;Move to start position
 M109 S{nozzle_temperature[initial_extruder]}
 G0 E3 F300
 G0 X240 E15 F{outer_wall_volumetric_speed/(0.3*0.5)     * 60} 
