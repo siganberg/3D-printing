@@ -83,7 +83,7 @@ G1 Z5.000 F1200
 G90 
 G1 Z20.000 F1200
 
-;=== Go back to center and do final z-homing with clean nozzle
+;=== Go back to center and do final z-homing with a clean nozzle
 G90
 G0 Z10 F1200
 G0 X128 F30000
@@ -91,9 +91,10 @@ G0 Y128 F3000
 M104 S{nozzle_temperature_initial_layer[initial_extruder]} 
 G28 Z 
 G90
-G0 X0 F30000
+G0 X-48.2 F30000
 
-;== Filament Swap routine
+
+;===== prepare print temperature and material end =====
 M620 M ;enable remap
 M620 S[initial_no_support_extruder]A   ; switch material if AMS exist
     M1002 gcode_claim_action : 4
@@ -110,14 +111,14 @@ M620 S[initial_no_support_extruder]A   ; switch material if AMS exist
     M109 S250 ;set nozzle to common flush temp
     M106 P1 S0
     G92 E0
-    G1 E50 F200
+    G1 E25 F200 ; (FMM) Reduced to 25, I think 50 is too much
     M400
     M1002 set_filament_type:{filament_type[initial_no_support_extruder]}
 M621 S[initial_no_support_extruder]A
 
 M109 S{nozzle_temperature_range_high[initial_no_support_extruder]} H300
 G92 E0
-G1 E50 F200 ; lower extrusion speed to avoid clog
+G1 E25 F200 ; lower extrusion speed to avoid clog. (FMM). Reduced again to 25
 M400
 M106 P1 S178
 G92 E0
@@ -136,76 +137,6 @@ G1 X-48.2 F3000
 M400
 M106 P1 S0
 ;===== prepare print temperature and material end =====
-
-;===== auto extrude cali start =========================
-M975 S1
-
-G90
-M83
-T1000
-G1 X-48.2 Y0 Z10 F10000
-M400
-M1002 set_filament_type:UNKNOWN
-
-M412 S1 
-M400 P10
-M620.3 W1
-M400 S2
-
-M1002 set_filament_type:{filament_type[initial_no_support_extruder]}
-
-
-M1002 judge_flag extrude_cali_flag
-
-M622 J1
-    M1002 gcode_claim_action : 8
-
-    M109 S{nozzle_temperature[initial_extruder]}
-    G1 E10 F{outer_wall_volumetric_speed/2.4*60}
-    M983 F{outer_wall_volumetric_speed/2.4} A0.3 H[nozzle_diameter]; 
-
-    M106 P1 S255
-    M400 S5
-    G1 X-28.5 F18000
-    G1 X-48.2 F3000
-    G1 X-28.5 F18000
-    G1 X-48.2 F3000
-    G1 X-28.5 F12000
-    G1 X-48.2 F3000
-    M400
-    M106 P1 S0
-
-    M1002 judge_last_extrude_cali_success
-    M622 J0
-        M983 F{outer_wall_volumetric_speed/2.4} A0.3 H[nozzle_diameter]; cali dynamic extrusion compensation
-        M106 P1 S255
-        M400 S5
-        G1 X-28.5 F18000
-        G1 X-48.2 F3000
-        G1 X-28.5 F18000 
-        G1 X-48.2 F3000
-        G1 X-28.5 F12000
-        M400
-        M106 P1 S0
-    M623
-    
-    G1 X-48.2 F3000
-    M400
-    M984 A0.1 E1 S1 F{outer_wall_volumetric_speed/2.4} H[nozzle_diameter]
-    M106 P1 S178
-    M400 S7
-    G1 X-28.5 F18000
-    G1 X-48.2 F3000
-    G1 X-28.5 F18000 
-    G1 X-48.2 F3000
-    G1 X-28.5 F12000 
-    G1 X-48.2 F3000
-    M400
-    M106 P1 S0
-M623 
-;===== auto extrude cali end ========================
-;== Filament Swap routine
-
 
 
 ;========turn off light and wait extrude temperature =============
