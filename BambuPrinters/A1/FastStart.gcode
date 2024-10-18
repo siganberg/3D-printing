@@ -154,7 +154,7 @@ G1 Z0.2 F1200
 ;M109 S{nozzle_temperature_initial_layer[initial_extruder]}
 
 G1 E2 F300
-G1 X200 E10 F1000
+G1 X200 E10 F2000
 G1 Z1 F1200
 ;===== nozzle load line end ===========================
 
