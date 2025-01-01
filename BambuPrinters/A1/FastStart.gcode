@@ -6,7 +6,9 @@ M9833.2
 ;===== start to heat heatbead&hotend without waiting ==========
 M1002 gcode_claim_action : 2
 M1002 set_filament_type:{filament_type[initial_no_support_extruder]}
-M104 S140
+
+;== set the temperature to the initial extruder temperature minus 60. 
+M104 S{nozzle_temperature_initial_layer[initial_extruder]-60}
 M140 S[bed_temperature_initial_layer_single]
 
 ;===== reset machine status =================
