@@ -1,23 +1,19 @@
-;===== machine: A1 =========================
-;===== date: 20240620 =====================
+;===== Machine: A1 =========================
 G392 S0
 M9833.2
 
 ;===== start to heat heatbead&hotend without waiting ==========
 M1002 gcode_claim_action : 2
 M1002 set_filament_type:{filament_type[initial_no_support_extruder]}
-
-;== set the temperature to the initial extruder temperature minus 60. 
-M104 S{nozzle_temperature_initial_layer[initial_extruder]-60}
+M104 S140
 M140 S[bed_temperature_initial_layer_single]
 
 ;===== reset machine status =================
-;M290 X39 Y39 Z8
 M204 S6000
 
 M630 S0 P0
 G91
-M17 Z0.3 ; lower the z-motor current
+M17 Z0.3; lower the z-motor current
 
 G90
 M17 X0.65 Y1.2 Z0.6 ; reset motor current to default
@@ -27,20 +23,19 @@ M220 S100 ;Reset Feedrate
 M221 S100 ;Reset Flowrate
 M73.2   R1.0 ;Reset left time magnitude
 
+;=== Initial Homing
 M1002 gcode_claim_action : 13
-
-
-;=== Home X and Y
 G28 X
 G90
-
+ 
 ;=== Goto center and do low precision z-homing since we have clean the exturder yet
 G0 X128 F30000
 G0 Y128 F3000
-G28 Z; home z with low precision,permit 300deg temperature
+G28 Z
 
-;=== Go to wiping area and increase temperature
-M109 S140           
+;=== Go to wiping area 
+M109 S{nozzle_temperature_initial_layer[initial_extruder]-60} ; wait for initial temperature before homing. 
+M104 S140; now lower the temperature while doing wiping without waiting.
 G90
 G1 Y250 F30000
 G1 X55
@@ -80,21 +75,50 @@ G1 Y-0.5
 G1 X45
 G1 Z5.000 F1200
 
-
 ;=== nozzle cleanup routine cleanup done. 
 G90 
 G1 Z20.000 F1200
 
-;=== Go back to center and do final z-homing with a clean nozzle
-G90
-G0 Z10 F1200
-G0 X128 F30000
-G0 Y128 F3000
-M104 S{nozzle_temperature_initial_layer[initial_extruder]} 
-G28 Z 
+
+;=== Speed up the cooling of the extruder using the fan.
+M106 S255 
+M109 140; wait for initial temperature before homing. 
+M106 S0 
+
+; === check if we want to do bed leveling
+M1002 judge_flag g29_before_print_flag
+
+M622 J1
+    ;===== bed leveling ==================================
+    G1 Z5 F1200
+    G1 X0 Y0 F30000
+    G29.2 S1 ; turn on ABL
+
+    M190 S[bed_temperature_initial_layer_single]; ensure bed temp
+    M109 S140
+
+
+    M1002 gcode_claim_action : 1
+    G29 A1 X{first_layer_print_min[0]} Y{first_layer_print_min[1]} I{first_layer_print_size[0]} J{first_layer_print_size[1]}
+    M400
+    M500 ; save cali data
+    G1 Z5 F1200
+M623
+;===== bed leveling end ================================
+
+
+M622 J0
+    ;=== No Bed leveling selected, just do final homing
+    G90
+    G0 Z10 F1200
+    G0 X128 F30000
+    G0 Y128 F3000
+    G28 Z 
+    G90
+M623
+
 G90
 G0 X-48.2 F30000
-
 
 ;===== prepare print temperature and material end =====
 M620 M ;enable remap
