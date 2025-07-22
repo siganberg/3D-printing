@@ -1,5 +1,5 @@
-;===== machine: P1P ========================
-;===== date: 202200815 =====================
+;===== machine: X1  ========================
+;===== date: 20241103  =====================
 ;===== reset machine status =================
 G91
 M17 Z0.3 ; lower the z-motor current
@@ -41,7 +41,7 @@ G91
 G0 Z2 F1200
 G90
 G28 X
-M975 S1 ; turn on 
+M975 S1 ; turn on
 G1 X60 F12000
 G1 Y245
 G1 Y265 F3000
@@ -87,7 +87,7 @@ G1 X95 F15000
 G1 X76 F15000; wipe and shake
 
 
-;== Custom Shake for TPU 
+;== Custom Shake for TPU
 M109 S{nozzle_temperature_initial_layer[initial_extruder]-40} ; drop nozzle temp, make filament shink a bit
 G1 X80 F6000
 G1 X95 F15000
@@ -182,21 +182,25 @@ M104 S{nozzle_temperature_initial_layer[initial_extruder]} ; set extrude temp ea
 
 ;===== noozle load line ===============================
 M975 S1
-G90 
+G90
 M83
 T1000
 G1 X18.0 Y5.0 Z0.2 F18000;Move to start position
 M109 S{nozzle_temperature[initial_extruder]}
-G0 E3 F300
-G0 X240 E15 F{outer_wall_volumetric_speed/(0.3*0.5)     * 60} 
-G0 Y5.5 
-G0 X18 E15
-M400
+;G0 E3 F300
+;G0 X240 E15 F{outer_wall_volumetric_speed/(0.3*0.5)     * 60}
+;G0 Y5.5
+;G0 X18 E15
+;M400
 
 ;========turn off light and wait extrude temperature =============
 M1002 gcode_claim_action : 0
 M106 S0 ; turn off fan
-M106 P2 S0 ; turn off big fan 
+M106 P2 S0 ; turn off big fan
 M106 P3 S0 ; turn off chamber fan
 
 M975 S1 ; turn on mech mode supression
+
+;{if curr_bed_type=="Textured PEI Plate"}
+;G29.1 Z{-0.075} ; for Textured PEI Plate
+;{endif}
