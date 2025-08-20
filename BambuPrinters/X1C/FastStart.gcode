@@ -72,40 +72,69 @@ M400
 M106 P1 S255
 G92 E0
 G1 E5 F300
-M109 S{nozzle_temperature_initial_layer[initial_extruder]-20} ; drop nozzle temp, make filament shink a bit
+M109 S{nozzle_temperature_initial_layer[initial_extruder]-60} ; drop nozzle temp, make filament shink a bit
 G92 E0
 G1 E-0.5 F300
-G1 X70 F9000
-G1 X76 F15000
-G1 X65 F15000
-G1 X76 F15000
-G1 X65 F15000; shake to put down garbage
-G1 X80 F6000
-G1 X95 F15000
-G1 X80 F15000
-G1 X95 F15000
-G1 X76 F15000; wipe and shake
 
 
-;== Custom Shake for TPU
-M109 S{nozzle_temperature_initial_layer[initial_extruder]-40} ; drop nozzle temp, make filament shink a bit
-G1 X80 F6000
-G1 X95 F15000
-G1 X80 F15000
-G1 X95 F15000
-G1 X76 F15000; wipe and shake
-M109 S{nozzle_temperature_initial_layer[initial_extruder]-60} ; drop nozzle temp, make filament shink a bit
-G1 X80 F6000
-G1 X95 F15000
-G1 X80 F15000
-G1 X95 F15000
-G1 X76 F15000; wipe and shake
+
+;========== Start of Wiper Nozzle Wipe ==================
+G90 ; Set to absolute positioning mode
+G1 Z10 F1200 ; Move down to Z10 to avoid hitting the bed during the wipe passes
+G1 X128 Y265 F30000 ; Move to the starting position, which should be near where the steel plate wipe sequence ended
+
+G91 ; Switch to relative positioning mode
+G1 X-45 F15000 ; Perform a snake pattern motion from top to bottom
+G1 Y-0.5 ; Slightly increment the Y-axis and repeat the back-and-forth motion while adjusting Y
+G1 X25
+G1 Y-0.5
+G1 X-25
+G1 Y-0.5
+G1 X25
+G1 Y-0.5
+G1 X-25
+G1 Y-0.5
+G1 X25 ; Reversing direction
+G1 X-25
+G1 Y0.5
+G1 X25
+G1 Y0.5
+G1 X-25
+G1 Y0.5
+G1 X25
+G1 Y0.5
+G1 X-25
+G1 X45
+
 M109 S{nozzle_temperature_initial_layer[initial_extruder]-80} ; drop nozzle temp, make filament shink a bit
-G1 X80 F6000
-G1 X95 F15000
-G1 X80 F15000
-G1 X95 F15000
-G1 X76 F15000; wipe and shake
+G1 X-45 F15000 ; Perform a snake pattern motion from top to bottom
+G1 Y-0.5 ; Slightly increment the Y-axis and repeat the back-and-forth motion while adjusting Y
+G1 X25
+G1 Y-0.5
+G1 X-25
+G1 Y-0.5
+G1 X25
+G1 Y-0.5
+G1 X-25
+G1 Y-0.5
+G1 X25 ; Reversing direction
+G1 X-25
+G1 Y0.5
+G1 X25
+G1 Y0.5
+G1 X-25
+G1 Y0.5
+G1 X25
+G1 Y0.5
+G1 X-25
+G1 X45
+
+G90 ; Switch back to absolute positioning mode
+G1 X128 Y265 ; Return to the starting position
+
+
+G1 F3000 ; Restore the previous acceleration settings
+;========== End of Wiper Nozzle Wipe ================================
 
 M400
 M106 P1 S0
@@ -116,18 +145,18 @@ G28 Z P0 T300; home z with low precision,permit 300deg temperature
 G29.2 S0 ; turn off ABL
 G0 Z2 F20000
 
-G1 X60 Y265
-G92 E0
-G1 E-0.5 F300 ; retrack more
-G1 X100 F5000; second wipe mouth
-G1 X70 F15000
-G1 X100 F5000
-G1 X70 F15000
-G1 X100 F5000
-G1 X70 F15000
-G1 X100 F5000
-G1 X70 F15000
-G1 X90 F5000
+;G1 X60 Y265
+;G92 E0
+;G1 E-0.5 F300 ; retrack more
+;G1 X100 F5000; second wipe mouth
+;G1 X70 F15000
+;G1 X100 F5000
+;G1 X70 F15000
+;G1 X100 F5000
+;G1 X70 F15000
+;G1 X100 F5000
+;G1 X70 F15000
+;G1 X90 F5000
 
 # G0 X128 Y261 Z-1.5 F20000  ; move to exposed steel surface and stop the nozzle
 M104 S160 ; set temp down to heatbed acceptable
@@ -201,6 +230,8 @@ M106 P3 S0 ; turn off chamber fan
 
 M975 S1 ; turn on mech mode supression
 
-;{if curr_bed_type=="Textured PEI Plate"}
-;G29.1 Z{-0.075} ; for Textured PEI Plate
-;{endif}
+G0 E3 F50
+
+{if curr_bed_type=="Textured PEI Plate"}
+G29.1 Z{-0.1} ; for Textured PEI Plate
+{endif}
